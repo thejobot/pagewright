@@ -1,6 +1,6 @@
 /**
  * Default block registry. Each block defines its label, category, and the HTML
- * dropped onto the GrapesJS canvas. Blocks are self-contained — their CSS
+ * dropped onto the GrapesJS canvas. Blocks are self-contained, their CSS
  * lives in /styles/blocks.css so the same class names render identically in
  * the editor and in the exported page HTML.
  *

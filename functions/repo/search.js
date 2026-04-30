@@ -4,8 +4,8 @@
  * GET /repo/search?q=<query>
  *
  * Env bindings (Cloudflare Pages):
- *   GITHUB_TOKEN — fine-grained PAT with read access to the repo
- *   GITHUB_REPO  — e.g. "owner/repo" (required)
+ *   GITHUB_TOKEN: fine-grained PAT with read access to the repo
+ *   GITHUB_REPO: e.g. "owner/repo" (required)
  */
 
 const CORS = {

@@ -6,7 +6,7 @@ export default {
     <aside class="bx-callout">
       <div class="bx-callout-label">Note</div>
       <div class="bx-callout-body">
-        A short, concrete callout — context, a quote, or a side-note worth surfacing.
+        A short, concrete callout: context, a quote, or a side-note worth surfacing.
       </div>
     </aside>
   `,

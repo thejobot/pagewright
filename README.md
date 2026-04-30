@@ -1,30 +1,27 @@
 # pagewright
 
-> Enhance your vibe-coding with hands-on edits and richer context for the next prompt.
+> Ever get stuck on an icon or a placement you can't describe in natural
+> language? Roll up your sleeves and just move it. Or inspect in detail
+> how the thing works in your HTML.
 
 When Claude (or whatever LLM you're using) writes an SVG, a layout, or a
-whole page for you, the next round is often the painful part. Two things
-work against you:
+whole page for you, the next round is often the painful part. The model
+can't see what it rendered, and even when it can, it usually can't tell
+which particular `<rect>` or `<div>` you mean. The fix-by-description loop
+drifts.
 
-- **The model can't see what it rendered.** Even when you screenshot it
-  back, it usually can't tell which particular `<rect>` or `<div>` you
-  mean, and the fix-by-description loop drifts.
-- **You can't easily hand the model precise context** about the part you
-  care about — the selector, the surrounding markup, the handlers and
-  styles in play. So your prompt is vaguer than it needs to be, and the
-  next pass overshoots.
+Pagewright opens any HTML file from your GitHub repo into a visual editor
+built on [GrapesJS](https://grapesjs.com/). Two things you can do that the
+chat loop can't:
 
-Pagewright sits between you and the artifact. Open any HTML file from your
-GitHub repo into a visual editor built on [GrapesJS](https://grapesjs.com/)
-and either:
-
-- **Nudge by hand** — click the thing, drag it where it should go, save the
-  edit back as a PR. The kind of pixel-level move you'd spend three messages
-  trying to describe.
-- **Pull sharper context** — the layer tree, find-in-repo panel, and
-  actions inspector surface the structure, surrounding files, and event
-  wiring of whatever you've selected. Paste that into your next prompt
-  instead of "the blue thing on the left."
+- **Move it yourself.** Click the thing, drag it where it should go, save
+  the edit back as a PR. The pixel-level move you'd otherwise spend three
+  messages trying to describe.
+- **Inspect what it's doing.** The layer tree, find-in-repo panel, and
+  actions inspector show you the structure, surrounding files, and event
+  wiring of whatever you've selected. Useful both for understanding how the
+  page hangs together and for grabbing precise context to paste into your
+  next prompt.
 
 No build step, vanilla ES modules, deploys to Cloudflare Pages.
 
@@ -119,20 +116,20 @@ Edit `index.html` to set:
 <meta name="studio-features"    content="songs">
 ```
 
-- `studio-site-origin` — if your deployed site uses site-absolute paths
+- `studio-site-origin`: if your deployed site uses site-absolute paths
   (e.g. `<img src="/icon.png">`), set this to the deployed origin so previews
   load assets from there. Empty disables the rewrite.
-- `studio-github-repo` — display-only; populates `<code class="repo-name">`
+- `studio-github-repo`: display-only. Populates `<code class="repo-name">`
   placeholders in the setup modal so users see your repo name. The functions
   side reads `GITHUB_REPO` independently.
-- `studio-features` — comma-separated feature flags. Currently supports
+- `studio-features`: comma-separated feature flags. Currently supports
   `songs` (reveals the karaoke-style Songs panel for editing embedded
   `<script id="songs-data">` blocks).
 
 ## Deploying
 
 1. Create a new Cloudflare Pages project, connect this repo.
-2. Build command: *(none — static)*. Output dir: `/`.
+2. Build command: *(none, since this is a static site)*. Output dir: `/`.
 3. Gate the URL with Cloudflare Access or your auth flavor of choice.
 4. Add the env bindings above.
 
@@ -179,4 +176,4 @@ And in `index.html`:
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+MIT. See [LICENSE](./LICENSE).

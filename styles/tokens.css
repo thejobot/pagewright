@@ -16,7 +16,7 @@
   --accent:#c4b5fd;
   --accent-dim:#8b7dcf;
 
-  /* Utility palette — used by status indicators, charts, and any block that
+  /* Utility palette, used by status indicators, charts, and any block that
      wants a non-accent highlight. Reuse rather than introducing one-off
      hexes. Drop the ones you don't need at fork time. */
   --blue:#60a5fa;

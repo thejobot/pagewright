@@ -1,5 +1,5 @@
 /**
- * Studio — GrapesJS bootstrap, token setup, open/edit/save flows,
+ * Studio, GrapesJS bootstrap, token setup, open/edit/save flows,
  * find-in-repo, toasts. No build step; loaded as an ES module.
  */
 import { registerBlocks } from './blocks/index.js';
@@ -41,7 +41,7 @@ if (REPO_DISPLAY) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Token storage — browser-only, sent as x-gh-token header                    */
+/* Token storage, browser-only, sent as x-gh-token header                    */
 /* -------------------------------------------------------------------------- */
 
 function getToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
@@ -58,7 +58,7 @@ async function api(url, init = {}) {
     try { data = await res.clone().json(); } catch {}
     if (data?.error === 'NO_GH_TOKEN') {
       showSetupModal({ reason: 'no-token' });
-      throw new Error('Setup required — paste your GitHub token in the setup modal.');
+      throw new Error('Setup required, paste your GitHub token in the setup modal.');
     }
   }
   return res;
@@ -110,7 +110,7 @@ const editor = window.grapesjs.init({
     stepsBeforeSave: 1,
     options: { local: { key: 'studio-draft' } },
   },
-  // Don't track selection in the undo stack — selection-only entries cause
+  // Don't track selection in the undo stack, selection-only entries cause
   // hasUndo() to return true without any real edit, which makes the Undo
   // button look permanently active. Larger stack so a burst of small edits
   // doesn't run out of history.
@@ -137,10 +137,10 @@ registerBlocks(editor);
 /*                                                                             */
 /* Studio blocks opt out of the default trash button at the registry level   */
 /* (blocks/index.js BLOCK_TOOLBAR). That only covers the root wrapper          */
-/* of a dropped block — its CHILDREN, plus basic-preset blocks the user drops, */
+/* of a dropped block, its CHILDREN, plus basic-preset blocks the user drops, */
 /* plus pasted markup all still inherit GrapesJS's default ↑ ✥ ⧉ 🗑. Filter    */
 /* tlb-delete off every component as it joins the tree. Also strip the root    */
-/* <body> wrapper's toolbar entirely — nothing to do at that level.            */
+/* <body> wrapper's toolbar entirely, nothing to do at that level.            */
 /* -------------------------------------------------------------------------- */
 
 try { editor.DomComponents.getWrapper()?.set('toolbar', []); } catch {}
@@ -162,13 +162,13 @@ function syncEmptyHint() {
   try {
     const childCount = editor.getWrapper()?.components()?.length ?? 0;
     el.hidden = childCount > 0;
-  } catch { /* swallow — hint is purely cosmetic */ }
+  } catch { /* swallow, hint is purely cosmetic */ }
 }
 editor.on('component:add component:remove load', syncEmptyHint);
 setTimeout(syncEmptyHint, 150);
 
 /* -------------------------------------------------------------------------- */
-/* Actions Inspector — detect animations/transitions/event handlers on a page */
+/* Actions Inspector, detect animations/transitions/event handlers on a page */
 /*                                                                             */
 /* Each detected "action" gets a stable id and a synthesized CSS override       */
 /* that neutralizes it when disabled. On save we write:                         */
@@ -358,7 +358,7 @@ function detectJsListeners(src) {
   };
 
   // document.querySelectorAll('SEL').forEach(X => X.addEventListener('EVENT', …))
-  //   — arrow form
+  //  , arrow form
   for (const m of src.matchAll(/document\.querySelectorAll\s*\(\s*['"]([^'"\n]+)['"]\s*\)\s*\.forEach\s*\(\s*\(?(\w+)\)?\s*=>\s*[\s\S]{0,40}?\2\.addEventListener\s*\(\s*['"]([\w-]+)['"]/g)) {
     push(m[3], m[1], `forEach(${m[2]} => …addEventListener)`);
   }
@@ -376,7 +376,7 @@ function detectJsListeners(src) {
     push(m[2], m[1], 'querySelector(…).addEventListener');
   }
 
-  // Simple: <var>.addEventListener('event', …) — if we know the var.
+  // Simple: <var>.addEventListener('event', …), if we know the var.
   for (const m of src.matchAll(/(?:^|[^.\w$])(\w+)\.addEventListener\s*\(\s*['"]([\w-]+)['"]/g)) {
     const target = m[1];
     const event  = m[2];
@@ -390,7 +390,7 @@ function detectJsListeners(src) {
 
 /** Return individual `selector { body }` blocks from a CSS string, honoring
  *  basic nesting for @media/@supports. Selectors inside those wrappers are
- *  surfaced too. Not a full CSS parser — good enough for rule-level scans. */
+ *  surfaced too. Not a full CSS parser, good enough for rule-level scans. */
 function splitRules(css) {
   const out = [];
   let i = 0, depth = 0;
@@ -468,7 +468,7 @@ function parseActionsConfig(raw) {
 
 function serializeActionsConfig(state) {
   // Build the runtime-only view: only triggers (JS + inline handlers) need
-  // to ride along so the IIFE can intercept them. CSS actions don't — their
+  // to ride along so the IIFE can intercept them. CSS actions don't, their
   // overrides live as guarded CSS rules under data-actions-disabled attrs.
   const triggers = {};
   for (const a of (state.actions || [])) {
@@ -545,7 +545,7 @@ function actionsRuntimeScript() {
         if (!matches) continue;
         if (disabled[t.id]) {
           ev.stopImmediatePropagation();
-          // Don't preventDefault — keep native behavior (link navigation etc.)
+          // Don't preventDefault, keep native behavior (link navigation etc.)
           return;
         }
         if (audioPool[t.id]) {
@@ -576,11 +576,11 @@ function actionsOverrideCss(actions, disabledIds) {
     rules.push(guarded);
   }
   if (!rules.length) return '';
-  return `<style data-studio-actions-css="1">\n/* actions inspector — disables, written by studio */\n${rules.join('\n')}\n</style>`;
+  return `<style data-studio-actions-css="1">\n/* actions inspector, disables, written by studio */\n${rules.join('\n')}\n</style>`;
 }
 
 /* -------------------------------------------------------------------------- */
-/* Songs data — parsed from <script type="application/json" id="songs-data">  */
+/* Songs data, parsed from <script type="application/json" id="songs-data">  */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -614,7 +614,7 @@ function replaceSongsBlock(raw, songs) {
 
 /** Write (or strip) the actions-config block, runtime hook, and override CSS
  *  into raw HTML based on the current state. Stateless: safely round-trips
- *  repeatedly — previous studio-injected markers are stripped first. */
+ *  repeatedly, previous studio-injected markers are stripped first. */
 function bakeActionsIntoHtml(raw, state) {
   // Always clean previous studio injections before deciding whether to add back.
   let out = raw
@@ -635,7 +635,7 @@ function bakeActionsIntoHtml(raw, state) {
   // <head>. Keeps them in one canonical location regardless of the page's
   // other head contents.
   const headOpen = out.search(/<head[^>]*>/i);
-  if (headOpen < 0) return out; // malformed doc — bail
+  if (headOpen < 0) return out; // malformed doc, bail
   const headTagEnd = out.indexOf('>', headOpen) + 1;
   out = out.slice(0, headTagEnd) + '\n' + config + '\n' + runtime + '\n' + out.slice(headTagEnd);
 
@@ -682,7 +682,7 @@ function renderMode() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* URL rewriting — site-absolute <-> full origin                              */
+/* URL rewriting, site-absolute <-> full origin                              */
 /*                                                                             */
 /* If the deployed site uses site-absolute paths like "/icon-192.png" in      */
 /* HTML attrs (src/href/poster) or CSS url(...) refs, those 404 under the     */
@@ -716,14 +716,14 @@ function relativizeUrls(text) {
 function parseExistingHtml(raw) {
   const doc = new DOMParser().parseFromString(raw, 'text/html');
 
-  // Capture <html> attributes (e.g. data-theme="light") — these drive the
+  // Capture <html> attributes (e.g. data-theme="light"), these drive the
   // page's default palette and flag which variant of any `:root[data-…]`
   // selector activates.
   const htmlAttrs = {};
   for (const a of doc.documentElement.attributes) htmlAttrs[a.name] = a.value;
 
   // All inline <style> blocks. Kept as a single string and later injected
-  // verbatim into the canvas iframe — do NOT pipe through GrapesJS setStyle,
+  // verbatim into the canvas iframe, do NOT pipe through GrapesJS setStyle,
   // it silently drops @font-face / @keyframes / :root vars / pseudo-elements.
   const styleNodes = Array.from(doc.querySelectorAll('style'));
   const cssText = absolutizeUrls(styleNodes.map(s => s.textContent).join('\n\n'));
@@ -737,7 +737,7 @@ function parseExistingHtml(raw) {
   // Extract all <script> tags in source order. GrapesJS sets the iframe body
   // via innerHTML, which means any <script> tags in bodyHtml are inert DOM.
   // We'll re-inject these via createElement+appendChild so they actually run
-  // in the preview — that's how JS-rendered regions (album tiles on the
+  // in the preview, that's how JS-rendered regions (album tiles on the
   // landing page, timestamp table on tap-lines, etc.) populate. The original
   // scripts still pass through bodyHtml to the component tree, so Save
   // preserves them in the committed HTML.
@@ -761,7 +761,7 @@ function parseExistingHtml(raw) {
  *  Wrapped in UndoManager stop/start/clear so none of the iframe setup (style
  *  injection, font link rewiring, script execution, <html> attr writes) can
  *  land in the undo stack. Clear() on the way out drops any churn that still
- *  made it in — first real user edit starts with a clean slate. */
+ *  made it in, first real user edit starts with a clean slate. */
 function applyCanvasDocTweaks({ cssText, htmlAttrs, headLinks, scripts }) {
   const doc = editor.Canvas?.getDocument?.();
   if (!doc) return false;
@@ -815,7 +815,7 @@ function applyCanvasDocTweaksInner(doc, { cssText, htmlAttrs, headLinks, scripts
   override.textContent = `
     html, body { overflow: visible !important; height: auto !important; min-height: 100vh !important; }
     body::before, body::after { position: absolute !important; z-index: 0 !important; pointer-events: none !important; }
-    /* Selection + hover outlines — replace GrapesJS's low-contrast default
+    /* Selection + hover outlines, replace GrapesJS's low-contrast default
        blue with the studio accent so they read on the dark canvas chrome.
        Literal hex (not var()) because this is injected into the iframe. */
     .gjs-selected { outline: 2px solid #c4b5fd !important; outline-offset: 1px !important; }
@@ -849,7 +849,7 @@ function applyCanvasDocTweaksInner(doc, { cssText, htmlAttrs, headLinks, scripts
  *
  *  Three defenses vs. the three ways the previous rAF-only pin leaked:
  *    1. ResizeObserver on <body> re-snaps whenever layout shifts (font swap,
- *       late SONGS.forEach rack injection, image decode) — deterministic,
+ *       late SONGS.forEach rack injection, image decode), deterministic,
  *       no idle-rAF battery drain.
  *    2. document.fonts 'loadingdone' re-snaps when Google Fonts finish on
  *       cold caches (which routinely exceeds 2.5s).
@@ -915,7 +915,7 @@ function runPageScripts(doc, scripts) {
       if (SITE_ORIGIN && src.startsWith('/') && !src.startsWith('//')) src = SITE_ORIGIN + src;
       el.src = src;
     } else {
-      // Use textContent, not innerHTML — avoids any HTML interpretation
+      // Use textContent, not innerHTML, avoids any HTML interpretation
       // of the script body.
       el.text = s.text;
     }
@@ -936,7 +936,7 @@ function reassembleHtml(originalRaw) {
 
   // Collect original CSS and strip the old <style> blocks. Append any CSS
   // GrapesJS emitted (new inline styles, new classes) at the end so user
-  // edits save too — but nothing original is lost. Studio-managed markers
+  // edits save too, but nothing original is lost. Studio-managed markers
   // (data-studio-actions-css) are preserved AS-IS so the next save can
   // cleanly strip + regenerate them via bakeActionsIntoHtml instead of
   // silently duplicating the override rules on every re-save.
@@ -1124,7 +1124,7 @@ async function loadFromRepo(path, listSha) {
     const parsed = parseExistingHtml(data.content);
 
     editor.setComponents(parsed.bodyHtml);
-    // Intentionally skip editor.setStyle — see parseExistingHtml rationale.
+    // Intentionally skip editor.setStyle, see parseExistingHtml rationale.
 
     const ok = applyCanvasDocTweaks(parsed);
     if (!ok) editor.once('load', () => applyCanvasDocTweaks(parsed));
@@ -1140,7 +1140,7 @@ async function loadFromRepo(path, listSha) {
     } else {
       songsState = null;
       renderSongsPanel();
-      // No songs? The Layers tree is the most useful default — gives
+      // No songs? The Layers tree is the most useful default, gives
       // immediate spatial orientation in whatever page was opened.
       switchPanelTab('layers');
     }
@@ -1212,7 +1212,7 @@ async function saveEdit() {
       if (actionsState) {
         actionsState.dirty = false;
         actionsState.pendingAudio = [];
-        // After save, _preview dataUrls aren't needed — drop them.
+        // After save, _preview dataUrls aren't needed, drop them.
         if (actionsState.sounds) {
           actionsState.sounds = actionsState.sounds.map(s => { const { _preview, ...rest } = s; return rest; });
         }
@@ -1281,7 +1281,7 @@ document.getElementById('btn-save').addEventListener('click', saveEdit);
 document.getElementById('btn-publish').addEventListener('click', publishNewPage);
 
 /* -------------------------------------------------------------------------- */
-/* Viewport controls — back-to-top, fit, 100% + keyboard shortcuts            */
+/* Viewport controls, back-to-top, fit, 100% + keyboard shortcuts            */
 /*                                                                             */
 /* Canvas selection in GrapesJS scrolls + highlights the selected component,  */
 /* so after exploring a nested element it's easy to lose track of "the whole  */
@@ -1332,7 +1332,7 @@ document.getElementById('btn-view-100').addEventListener('click', () => {
 });
 
 /* -------------------------------------------------------------------------- */
-/* Undo / Redo — GrapesJS UndoManager wired to buttons + shortcuts            */
+/* Undo / Redo, GrapesJS UndoManager wired to buttons + shortcuts            */
 /* -------------------------------------------------------------------------- */
 
 const btnUndo = document.getElementById('btn-undo');
@@ -1361,7 +1361,7 @@ refreshUndoButtons();
 /*   - hasUndo() gate: skip the toast for the burst of removes that fires     */
 /*     when Open replaces the canvas content on page load.                    */
 /*   - 50ms debounce: deleting a container triggers component:remove for     */
-/*     every descendant — coalesce those into one toast for the parent.      */
+/*     every descendant, coalesce those into one toast for the parent.      */
 /* -------------------------------------------------------------------------- */
 
 let _deleteToastTimer = null;
@@ -1394,7 +1394,7 @@ editor.on('component:remove', (component) => {
 });
 
 /* -------------------------------------------------------------------------- */
-/* Breadcrumbs — always-visible DOM path to the current selection             */
+/* Breadcrumbs, always-visible DOM path to the current selection             */
 /*                                                                             */
 /* Click any crumb to select that ancestor; the right-edge "×" deselects.     */
 /* This is the "how do I get back?" affordance: wherever you ended up after   */
@@ -1455,7 +1455,7 @@ editor.on('component:selected', renderBreadcrumbs);
 editor.on('component:deselected', renderBreadcrumbs);
 editor.on('component:update:attributes', renderBreadcrumbs);
 
-/* Clicking the canvas paper (not an element) clears selection — matches
+/* Clicking the canvas paper (not an element) clears selection, matches
  * Webflow / Figma convention. canvas:click is GrapesJS's drag-aware resolved
  * click; it won't fire during a drag-to-move. Only deselect when the click
  * actually landed on BODY or HTML, not a real element. */
@@ -1515,7 +1515,7 @@ function renderScriptToggle() {
   const off = scriptsDisabled();
   btn.textContent = off ? '⚡ off' : '⚡ on';
   btn.title = off
-    ? 'Page scripts disabled — JS-rendered regions (tiles, etc.) will be blank.'
+    ? 'Page scripts disabled, JS-rendered regions (tiles, etc.) will be blank.'
     : 'Page scripts running in the canvas. Click to disable.';
   btn.classList.toggle('js-off', off);
 }
@@ -1647,7 +1647,7 @@ function updateSongsStatus() {
   const bits = [];
   if (songsState.dirty) bits.push('unsaved changes');
   if (assetCount) bits.push(`${assetCount} new art file${assetCount > 1 ? 's' : ''}`);
-  songsStatus.textContent = bits.join(' · ') + ' — Save to commit';
+  songsStatus.textContent = bits.join(' · ') + ', Save to commit';
 }
 
 function renderSongsPanel() {
@@ -1682,7 +1682,7 @@ function renderSongsPanel() {
     `;
     card.querySelector('.song-title').textContent = s.title || '(untitled)';
     card.querySelector('.song-artist').textContent = s.artist || '';
-    card.querySelector('.song-meta').textContent = `${s.lang || '??'} · ${s.url || '—'}`;
+    card.querySelector('.song-meta').textContent = `${s.lang || '??'} · ${s.url || '-'}`;
     attachCardHandlers(card, idx);
     songsList.appendChild(card);
   });
@@ -1804,7 +1804,7 @@ function expandSongEditor(card, idx) {
       if (f === 'title') card.querySelector('.song-title').textContent = inp.value || '(untitled)';
       if (f === 'artist') card.querySelector('.song-artist').textContent = inp.value;
       if (f === 'lang' || f === 'url') {
-        card.querySelector('.song-meta').textContent = `${s.lang || '??'} · ${s.url || '—'}`;
+        card.querySelector('.song-meta').textContent = `${s.lang || '??'} · ${s.url || '-'}`;
       }
       markSongsDirty();
     });
@@ -1932,7 +1932,7 @@ function blobToBase64(blob) {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result;
-      // dataURL is "data:image/png;base64,AAAA..." — strip the prefix.
+      // dataURL is "data:image/png;base64,AAAA...", strip the prefix.
       resolve(result.split(',', 2)[1] || '');
     };
     reader.onerror = reject;
@@ -1941,7 +1941,7 @@ function blobToBase64(blob) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Actions Inspector — panel rendering + live preview toggles                  */
+/* Actions Inspector, panel rendering + live preview toggles                  */
 /* -------------------------------------------------------------------------- */
 
 const actionsList    = document.getElementById('actions-list');
@@ -2073,11 +2073,11 @@ async function handleSoundDrop(actionId, file) {
   if (!a) return;
   const ext = (file.name.match(/\.(\w+)$/)?.[1] || 'mp3').toLowerCase();
   if (!['mp3', 'wav', 'ogg', 'm4a', 'aac'].includes(ext)) {
-    toast({ title: 'Unsupported audio', body: `.${ext} — use mp3 / wav / ogg / m4a / aac`, kind: 'error' });
+    toast({ title: 'Unsupported audio', body: `.${ext}, use mp3 / wav / ogg / m4a / aac`, kind: 'error' });
     return;
   }
   if (file.size > 12_000_000) {
-    toast({ title: 'Audio too big', body: `${Math.round(file.size / 1024 / 1024)}MB — keep under 12MB`, kind: 'error' });
+    toast({ title: 'Audio too big', body: `${Math.round(file.size / 1024 / 1024)}MB, keep under 12MB`, kind: 'error' });
     return;
   }
   const path = `sounds/${slugifyId(actionId)}.${ext}`;
@@ -2210,7 +2210,7 @@ function applyActionsOverridesToCanvas() {
 /* One place that defines every verb users can invoke. Keyboard shortcuts,    */
 /* context-menu items, and toolbar buttons all dispatch through runVerb()     */
 /* so behavior stays consistent and we can surface them in a shortcuts        */
-/* cheat-sheet later. Each verb is self-contained — it reads the current      */
+/* cheat-sheet later. Each verb is self-contained, it reads the current      */
 /* selection from editor.getSelected() and runs against it.                   */
 /* -------------------------------------------------------------------------- */
 
@@ -2290,7 +2290,7 @@ function runVerb(id) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Layers panel — component tree view                                          */
+/* Layers panel, component tree view                                          */
 /*                                                                             */
 /* GrapesJS keeps component state in a Backbone collection off the wrapper;    */
 /* we walk it to build our own tree UI styled to match the studio chrome.     */
@@ -2518,7 +2518,7 @@ editor.on('component:add', () => {
 });
 
 /* -------------------------------------------------------------------------- */
-/* First-run — if no token, nudge the setup modal                             */
+/* First-run, if no token, nudge the setup modal                             */
 /* -------------------------------------------------------------------------- */
 
 try {

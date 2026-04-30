@@ -21,9 +21,9 @@
  * branch it's reused (new commit pushed), otherwise a new PR opens.
  *
  * Env bindings:
- *   GITHUB_TOKEN — fine-grained PAT with contents:rw + pull_requests:rw
- *   GITHUB_REPO  — "owner/repo" (required)
- *   PUBLISH_PATH_PATTERN — optional, defaults to "pages/{slug}/index.html"
+ *   GITHUB_TOKEN: fine-grained PAT with contents:rw + pull_requests:rw
+ *   GITHUB_REPO: "owner/repo" (required)
+ *   PUBLISH_PATH_PATTERN: optional, defaults to "pages/{slug}/index.html"
  */
 
 const CORS = {

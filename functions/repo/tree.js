@@ -2,7 +2,7 @@
  * List files in the configured GitHub repo.
  *
  * GET /repo/tree?pattern=.html
- *   pattern  — optional. A substring or suffix filter applied to paths.
+ *   pattern: optional. A substring or suffix filter applied to paths.
  *
  * Returns { ok, files: [{ path, sha, size }] } from the main branch tree.
  *

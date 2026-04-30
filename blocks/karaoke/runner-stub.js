@@ -5,7 +5,7 @@ export default {
   content: `
     <section class="mk-runner">
       <span class="mk-runner-badge">Coming soon</span>
-      <div class="mk-runner-title">Runner — drill the lyrics</div>
+      <div class="mk-runner-title">Runner, drill the lyrics</div>
       <div class="mk-runner-sub">Short-form flashcard runner against the song timing. Wire once recorded.</div>
     </section>
   `,

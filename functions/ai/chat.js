@@ -1,5 +1,5 @@
 /**
- * Claude tool-use loop for Studio's AI panel. Optional — only mount this
+ * Claude tool-use loop for Studio's AI panel. Optional, only mount this
  * function if you want the AI assist surface. Without ANTHROPIC_API_KEY set,
  * any call to /ai/chat will return a 500.
  *
@@ -15,9 +15,9 @@
  *   publish_page   → commit + open PR (reuses /publish/commit)
  *
  * Env bindings:
- *   ANTHROPIC_API_KEY — Anthropic API key (required for this endpoint)
- *   ANTHROPIC_MODEL   — defaults to "claude-sonnet-4-6"
- *   GITHUB_TOKEN, GITHUB_REPO — passed through for tool implementations
+ *   ANTHROPIC_API_KEY: Anthropic API key (required for this endpoint)
+ *   ANTHROPIC_MODEL: defaults to "claude-sonnet-4-6"
+ *   GITHUB_TOKEN, GITHUB_REPO: passed through for tool implementations
  */
 
 const CORS = {
@@ -40,7 +40,7 @@ visually in GrapesJS; your job is the *plumbing*. You help by:
 
 Conventions:
   • vanilla HTML and inline <style>; no npm or framework runtime is assumed.
-  • when injecting an apostrophe inside an onclick string, use \\x27 — not
+  • when injecting an apostrophe inside an onclick string, use \\x27, not
     &#x27;. The HTML entity will render literally.
   • follow design-token names found in styles/tokens.css (read it via tools
     when needed) rather than inventing colors.
@@ -105,7 +105,7 @@ async function runTool(name, args, origin, env) {
   if (name === "wire_element") {
     return {
       ok: true,
-      suggestion: `// Stub — the model itself writes the snippet; this tool echoes the intent.\n// intent: ${args.intent}\n// element_id: ${args.element_id || "(unknown)"}`,
+      suggestion: `// Stub, the model itself writes the snippet; this tool echoes the intent.\n// intent: ${args.intent}\n// element_id: ${args.element_id || "(unknown)"}`,
     };
   }
   if (name === "publish_page") {

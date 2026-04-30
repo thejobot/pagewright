@@ -1,5 +1,5 @@
 /**
- * Karaoke example pack — opt-in. To enable, import this module from studio.js
+ * Karaoke example pack, opt-in. To enable, import this module from studio.js
  * and call registerKaraokeBlocks(editor) after registerBlocks(editor):
  *
  *   import { registerKaraokeBlocks } from './blocks/karaoke/index.js';
@@ -11,7 +11,7 @@
  *
  * The pack ships three blocks (song hero, lyric row, runner stub) preserved
  * verbatim from the original studio that this template was extracted from.
- * They use a `mk-` class prefix and Japanese/romaji sample copy — useful as
+ * They use a `mk-` class prefix and Japanese/romaji sample copy, useful as
  * a reference for building your own domain-specific block pack.
  */
 
