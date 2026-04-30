@@ -2,12 +2,18 @@
 
 > Vibe coded and want some manual control?
 
-A visual page builder built on [GrapesJS](https://grapesjs.com/) that publishes
-finished HTML pages directly into a configured GitHub repo as pull requests.
-Drop in pages your model generated, adjust them visually, ship a PR.
+When Claude (or whatever LLM you're using) writes an SVG, a layout, or a whole
+page for you, the next round of edits is often the painful part. You can
+describe what you want to move — but the model can't see what it rendered,
+and even when it can, it usually can't tell which particular `<rect>` or
+`<div>` you mean. Three messages later, the page is worse than where you
+started.
 
-No build step. Vanilla ES modules. Designed to deploy to Cloudflare Pages with
-the GitHub round-trip implemented as Pages Functions.
+tinker is the back-to-the-wheel button for that moment. Open any HTML file
+from your GitHub repo into a visual editor built on
+[GrapesJS](https://grapesjs.com/), click the thing you wanted to nudge, drag
+it where it should go, and commit the edit back as a pull request. No build
+step, vanilla ES modules, deploys to Cloudflare Pages.
 
 ## What you get
 
