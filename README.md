@@ -1,19 +1,32 @@
-# tinker
+# pagewright
 
-> Vibe coded and want some manual control?
+> Enhance your vibe-coding with hands-on edits and richer context for the next prompt.
 
-When Claude (or whatever LLM you're using) writes an SVG, a layout, or a whole
-page for you, the next round of edits is often the painful part. You can
-describe what you want to move — but the model can't see what it rendered,
-and even when it can, it usually can't tell which particular `<rect>` or
-`<div>` you mean. Three messages later, the page is worse than where you
-started.
+When Claude (or whatever LLM you're using) writes an SVG, a layout, or a
+whole page for you, the next round is often the painful part. Two things
+work against you:
 
-tinker is the back-to-the-wheel button for that moment. Open any HTML file
-from your GitHub repo into a visual editor built on
-[GrapesJS](https://grapesjs.com/), click the thing you wanted to nudge, drag
-it where it should go, and commit the edit back as a pull request. No build
-step, vanilla ES modules, deploys to Cloudflare Pages.
+- **The model can't see what it rendered.** Even when you screenshot it
+  back, it usually can't tell which particular `<rect>` or `<div>` you
+  mean, and the fix-by-description loop drifts.
+- **You can't easily hand the model precise context** about the part you
+  care about — the selector, the surrounding markup, the handlers and
+  styles in play. So your prompt is vaguer than it needs to be, and the
+  next pass overshoots.
+
+Pagewright sits between you and the artifact. Open any HTML file from your
+GitHub repo into a visual editor built on [GrapesJS](https://grapesjs.com/)
+and either:
+
+- **Nudge by hand** — click the thing, drag it where it should go, save the
+  edit back as a PR. The kind of pixel-level move you'd spend three messages
+  trying to describe.
+- **Pull sharper context** — the layer tree, find-in-repo panel, and
+  actions inspector surface the structure, surrounding files, and event
+  wiring of whatever you've selected. Paste that into your next prompt
+  instead of "the blue thing on the left."
+
+No build step, vanilla ES modules, deploys to Cloudflare Pages.
 
 ## What you get
 
