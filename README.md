@@ -1,10 +1,10 @@
-# tweak
+# tinker
 
 > Vibe coded and want some manual control?
 
 A visual page builder built on [GrapesJS](https://grapesjs.com/) that publishes
 finished HTML pages directly into a configured GitHub repo as pull requests.
-Drop in pages your model generated, tweak them visually, ship a PR.
+Drop in pages your model generated, adjust them visually, ship a PR.
 
 No build step. Vanilla ES modules. Designed to deploy to Cloudflare Pages with
 the GitHub round-trip implemented as Pages Functions.
