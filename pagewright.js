@@ -1,19 +1,21 @@
 /**
- * Studio, GrapesJS bootstrap, token setup, open/edit/save flows,
- * find-in-repo, toasts. No build step; loaded as an ES module.
+ * Pagewright bootstrap. Wires up GrapesJS, the topbar, the side panels
+ * (layers, find-in-repo, actions), the open/edit/save flows against the
+ * configured GitHub repo, and the toast/undo plumbing. No build step;
+ * loaded as an ES module.
  */
 import { registerBlocks } from './blocks/index.js';
 
 // Configured site origin used to rewrite site-absolute URLs (e.g. "/icon.png")
 // in the canvas preview so assets load from the deployed site rather than
-// 404ing under the studio's own origin. Set via <meta name="studio-site-origin">.
+// 404ing under the studio's own origin. Set via <meta name="pw-site-origin">.
 // Empty string disables the rewrite.
-const SITE_ORIGIN = document.querySelector('meta[name="studio-site-origin"]')?.content?.trim() || '';
+const SITE_ORIGIN = document.querySelector('meta[name="pw-site-origin"]')?.content?.trim() || '';
 
 // Configured GitHub repo (owner/name). Read here only for displaying in setup
 // modals and toasts; the source of truth is the GITHUB_REPO env var on the
-// Pages Functions side. Set via <meta name="studio-github-repo">.
-const REPO_DISPLAY = document.querySelector('meta[name="studio-github-repo"]')?.content?.trim() || '';
+// Pages Functions side. Set via <meta name="pw-github-repo">.
+const REPO_DISPLAY = document.querySelector('meta[name="pw-github-repo"]')?.content?.trim() || '';
 
 const OPEN_STATE_KEY = 'studio-open';
 const TOKEN_KEY      = 'studio-gh-token';
@@ -28,12 +30,12 @@ const blocksCss = await (await fetch('styles/blocks.css')).text();
 const skeleton  = await (await fetch('templates/page-skeleton.html')).text();
 
 // Populate any <code class="repo-name"> placeholders with the configured repo,
-// and reveal feature panels listed in <meta name="studio-features" content="…">.
+// and reveal feature panels listed in <meta name="pw-features" content="…">.
 if (REPO_DISPLAY) {
   for (const el of document.querySelectorAll('.repo-name')) el.textContent = REPO_DISPLAY;
 }
 {
-  const feats = (document.querySelector('meta[name="studio-features"]')?.content || '')
+  const feats = (document.querySelector('meta[name="pw-features"]')?.content || '')
     .split(/[,\s]+/).filter(Boolean);
   for (const feat of feats) {
     for (const el of document.querySelectorAll(`[data-feature="${feat}"]`)) el.hidden = false;
@@ -135,7 +137,7 @@ registerBlocks(editor);
 /* -------------------------------------------------------------------------- */
 /* Global toolbar filter                                                       */
 /*                                                                             */
-/* Studio blocks opt out of the default trash button at the registry level   */
+/* Pagewright blocks opt out of the default trash button at the registry     */
 /* (blocks/index.js BLOCK_TOOLBAR). That only covers the root wrapper          */
 /* of a dropped block, its CHILDREN, plus basic-preset blocks the user drops, */
 /* plus pasted markup all still inherit GrapesJS's default ↑ ✥ ⧉ 🗑. Filter    */
@@ -936,7 +938,7 @@ function reassembleHtml(originalRaw) {
 
   // Collect original CSS and strip the old <style> blocks. Append any CSS
   // GrapesJS emitted (new inline styles, new classes) at the end so user
-  // edits save too, but nothing original is lost. Studio-managed markers
+  // edits save too, but nothing original is lost. Pagewright-managed markers
   // (data-studio-actions-css) are preserved AS-IS so the next save can
   // cleanly strip + regenerate them via bakeActionsIntoHtml instead of
   // silently duplicating the override rules on every re-save.

@@ -43,28 +43,25 @@ No build step, vanilla ES modules, deploys to Cloudflare Pages.
 
 ```
 .
-├── index.html                ← editor UI
-├── studio.js                 ← bootstrap: GrapesJS init, topbar, find-in-repo
+├── index.html                  editor UI
+├── pagewright.js               bootstrap: GrapesJS init, topbar, find-in-repo
 ├── blocks/
-│   ├── index.js              ← registers the default block pack
+│   ├── index.js                registers the default block pack
 │   ├── hero-card.js
 │   ├── callout.js
 │   ├── embed.js
 │   ├── section-divider.js
-│   └── karaoke/              ← opt-in example pack (see below)
+│   └── karaoke/                opt-in example pack (see below)
 ├── styles/
-│   ├── tokens.css            ← design tokens (colors, surfaces)
-│   ├── blocks.css            ← block styles (inlined into export)
-│   └── blocks-karaoke.css    ← styles for the opt-in karaoke pack
+│   ├── tokens.css              design tokens (colors, surfaces)
+│   ├── blocks.css              block styles (inlined into export)
+│   └── blocks-karaoke.css      styles for the opt-in karaoke pack
 ├── templates/
-│   └── page-skeleton.html    ← wrapper used when exporting
-├── functions/                ← Cloudflare Pages Functions
-│   ├── ai/chat.js            ← optional Claude tool-use loop
-│   ├── repo/{tree,read,search}.js  ← read sides of the GitHub round-trip
-│   └── publish/commit.js     ← commit HTML + assets, open or reuse a PR
-└── agent/
-    ├── system-prompt.md      ← human-readable copy of the AI system prompt
-    └── tools.json            ← tool manifest mirror
+│   └── page-skeleton.html      wrapper used when exporting
+└── functions/                  Cloudflare Pages Functions
+    ├── ai/chat.js              optional Claude tool-use loop
+    ├── repo/{tree,read,search}.js  read sides of the GitHub round-trip
+    └── publish/commit.js       commit HTML + assets, open or reuse a PR
 ```
 
 ## Local dev
@@ -111,18 +108,18 @@ dashboard.
 Edit `index.html` to set:
 
 ```html
-<meta name="studio-site-origin" content="https://example.com">
-<meta name="studio-github-repo" content="owner/repo">
-<meta name="studio-features"    content="songs">
+<meta name="pw-site-origin" content="https://example.com">
+<meta name="pw-github-repo" content="owner/repo">
+<meta name="pw-features"    content="songs">
 ```
 
-- `studio-site-origin`: if your deployed site uses site-absolute paths
+- `pw-site-origin`: if your deployed site uses site-absolute paths
   (e.g. `<img src="/icon.png">`), set this to the deployed origin so previews
   load assets from there. Empty disables the rewrite.
-- `studio-github-repo`: display-only. Populates `<code class="repo-name">`
+- `pw-github-repo`: display-only. Populates `<code class="repo-name">`
   placeholders in the setup modal so users see your repo name. The functions
   side reads `GITHUB_REPO` independently.
-- `studio-features`: comma-separated feature flags. Currently supports
+- `pw-features`: comma-separated feature flags. Currently supports
   `songs` (reveals the karaoke-style Songs panel for editing embedded
   `<script id="songs-data">` blocks).
 
@@ -147,11 +144,11 @@ example.
 ## Karaoke example pack
 
 `blocks/karaoke/` ships a three-block pack (song hero, lyric row, runner
-stub) preserved verbatim from the studio this template was extracted from.
-It's a useful reference for building a domain-specific pack with its own
-class prefix, sample copy, and CSS file.
+stub) as a worked example of a domain-specific pack with its own class
+prefix, sample copy, and dedicated CSS file. Copy the structure when
+adding your own.
 
-To enable it, add to `studio.js` after `registerBlocks(editor)`:
+To enable it, add to `pagewright.js` after `registerBlocks(editor)`:
 
 ```js
 import { registerKaraokeBlocks } from './blocks/karaoke/index.js';

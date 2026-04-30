@@ -37,7 +37,7 @@ export async function onRequestGet(context) {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.v3+json",
-        "User-Agent": "studio",
+        "User-Agent": "pagewright",
       },
     }
   );

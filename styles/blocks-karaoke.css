@@ -1,7 +1,7 @@
 /* Karaoke example pack styles. Loaded only when the karaoke pack is enabled
-   (see blocks/karaoke/index.js). Class prefix `mk-` is intentional, these
-   files are preserved verbatim from the original studio this template was
-   extracted from, kept as a reference for building domain-specific blocks. */
+   (see blocks/karaoke/index.js). The `mk-` class prefix is intentional:
+   it shows how a domain-specific pack should namespace itself separately
+   from the default `bx-` blocks. */
 
 .mk-hero{
   padding:32px 20px 28px;max-width:860px;margin:0 auto;

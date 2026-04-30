@@ -1,7 +1,7 @@
 /**
- * Claude tool-use loop for Studio's AI panel. Optional, only mount this
- * function if you want the AI assist surface. Without ANTHROPIC_API_KEY set,
- * any call to /ai/chat will return a 500.
+ * Claude tool-use loop for Pagewright's AI panel. Optional, only mount
+ * this function if you want the AI assist surface. Without
+ * ANTHROPIC_API_KEY set, any call to /ai/chat will return a 500.
  *
  * POST /ai/chat
  * Body: { messages: [{role, content}, ...] }
@@ -32,7 +32,7 @@ const json = (d, s = 200) =>
     headers: { "Content-Type": "application/json", ...CORS },
   });
 
-const SYSTEM_PROMPT = `You are Studio's publishing assistant. The user designs pages
+const SYSTEM_PROMPT = `You are Pagewright's publishing assistant. The user designs pages
 visually in GrapesJS; your job is the *plumbing*. You help by:
   • finding files in the configured GitHub repo
   • suggesting how to wire interactive elements to existing patterns in the repo

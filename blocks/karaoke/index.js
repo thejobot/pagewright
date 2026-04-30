@@ -1,6 +1,7 @@
 /**
- * Karaoke example pack, opt-in. To enable, import this module from studio.js
- * and call registerKaraokeBlocks(editor) after registerBlocks(editor):
+ * Karaoke example pack, opt-in. To enable, import this module from
+ * pagewright.js and call registerKaraokeBlocks(editor) after
+ * registerBlocks(editor):
  *
  *   import { registerKaraokeBlocks } from './blocks/karaoke/index.js';
  *   registerKaraokeBlocks(editor);
@@ -9,10 +10,9 @@
  *
  *   <link rel="stylesheet" href="styles/blocks-karaoke.css">
  *
- * The pack ships three blocks (song hero, lyric row, runner stub) preserved
- * verbatim from the original studio that this template was extracted from.
- * They use a `mk-` class prefix and Japanese/romaji sample copy, useful as
- * a reference for building your own domain-specific block pack.
+ * Three blocks (song hero, lyric row, runner stub) using a `mk-` class
+ * prefix and Japanese/romaji sample copy. Treat as a worked example of a
+ * domain-specific pack: own prefix, own sample content, own stylesheet.
  */
 
 import { registerBlockSet } from '../index.js';
