@@ -1,0 +1,52 @@
+/* Karaoke example pack styles. Loaded only when the karaoke pack is enabled
+   (see blocks/karaoke/index.js). Class prefix `mk-` is intentional — these
+   files are preserved verbatim from the original studio this template was
+   extracted from, kept as a reference for building domain-specific blocks. */
+
+.mk-hero{
+  padding:32px 20px 28px;max-width:860px;margin:0 auto;
+  display:flex;gap:18px;align-items:center;
+}
+.mk-hero-art{
+  flex-shrink:0;width:92px;height:92px;border-radius:12px;overflow:hidden;
+  background:linear-gradient(135deg,#5b4b8a,#1d1a36 60%,#0f0d1e);
+  border:1px solid var(--border-light);
+}
+.mk-hero-art img{width:100%;height:100%;object-fit:cover;display:block}
+.mk-hero-meta{min-width:0;flex:1}
+.mk-hero-jp{
+  font-family:'Noto Sans JP',sans-serif;font-weight:900;font-size:1.6rem;
+  color:var(--text);letter-spacing:-.01em;line-height:1.15;margin-bottom:4px;
+}
+.mk-hero-artist{
+  font-family:'VT323','Space Mono',monospace;font-size:.95rem;
+  color:var(--accent);letter-spacing:.08em;text-transform:uppercase;
+}
+.mk-hero-en{color:var(--text-muted);font-size:.9rem;margin-top:6px}
+
+.mk-lyric{
+  max-width:720px;margin:12px auto;padding:14px 18px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+}
+.mk-lyric-jp{
+  font-family:'Noto Sans JP',sans-serif;font-weight:500;font-size:1.2rem;
+  color:var(--text);line-height:1.4;
+}
+.mk-lyric-romaji{
+  font-family:'JetBrains Mono',monospace;font-size:.82rem;
+  color:var(--text-dim);margin-top:4px;letter-spacing:.02em;
+}
+.mk-lyric-en{color:var(--text-muted);font-size:.92rem;margin-top:6px;line-height:1.4}
+
+.mk-runner{
+  max-width:720px;margin:18px auto;padding:20px 22px;text-align:center;
+  background:var(--surface);border:1px dashed var(--accent-dim);border-radius:14px;
+}
+.mk-runner-badge{
+  display:inline-block;padding:4px 10px;border-radius:999px;
+  background:rgba(196,181,253,.14);color:var(--accent);
+  font-family:'VT323','Space Mono',monospace;font-size:.76rem;
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;
+}
+.mk-runner-title{color:var(--text);font-size:1.1rem;font-weight:600}
+.mk-runner-sub{color:var(--text-muted);font-size:.88rem;margin-top:4px}

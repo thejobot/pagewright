@@ -1,0 +1,53 @@
+/* Block styles — inlined into exported page HTML via templates/page-skeleton.html */
+
+.bx-hero{
+  padding:32px 20px 28px;max-width:860px;margin:0 auto;
+  display:flex;gap:18px;align-items:center;
+}
+.bx-hero-art{
+  flex-shrink:0;width:92px;height:92px;border-radius:12px;overflow:hidden;
+  background:linear-gradient(135deg,#5b4b8a,#1d1a36 60%,#0f0d1e);
+  border:1px solid var(--border-light);
+}
+.bx-hero-art img{width:100%;height:100%;object-fit:cover;display:block}
+.bx-hero-meta{min-width:0;flex:1}
+.bx-hero-title{
+  font-weight:700;font-size:1.5rem;color:var(--text);
+  letter-spacing:-.01em;line-height:1.2;margin-bottom:4px;
+}
+.bx-hero-sub{color:var(--text-muted);font-size:.95rem;line-height:1.45}
+
+.bx-callout{
+  max-width:720px;margin:18px auto;padding:18px 20px;
+  background:var(--surface2);border:1px solid var(--border-light);border-radius:14px;
+  border-left:3px solid var(--accent);
+}
+.bx-callout-label{
+  font-size:.78rem;color:var(--accent);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;font-weight:600;
+}
+.bx-callout-body{color:var(--text);font-size:.96rem;line-height:1.55}
+
+.bx-embed{
+  max-width:720px;margin:18px auto;padding:16px 18px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  display:flex;align-items:flex-start;gap:14px;
+}
+.bx-embed-icon{
+  width:44px;height:44px;border-radius:10px;flex-shrink:0;
+  background:var(--surface2);border:1px solid var(--border-light);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.bx-embed-meta{flex:1;min-width:0}
+.bx-embed-title{color:var(--text);font-weight:600;font-size:1rem;margin-bottom:2px}
+.bx-embed-sub{color:var(--text-muted);font-size:.84rem}
+.bx-embed audio{width:100%;margin-top:10px}
+
+.bx-divider{
+  max-width:720px;margin:28px auto;display:flex;align-items:center;gap:12px;
+  color:var(--text-dim);font-size:.82rem;
+  letter-spacing:.12em;text-transform:uppercase;
+}
+.bx-divider::before,.bx-divider::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}

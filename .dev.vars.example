@@ -1,0 +1,18 @@
+# Copy to .dev.vars (gitignored) and fill in real values.
+# Wrangler reads this file automatically for `wrangler pages dev`.
+
+# GitHub PAT (fine-grained) — needs Contents: read/write + Pull requests:
+# read/write on the target repo.
+GITHUB_TOKEN=ghp_xxx
+
+# REQUIRED. The repo studio reads from and publishes into.
+GITHUB_REPO=owner/repo
+
+# Optional. Path pattern for new pages, with {slug} substituted.
+# Defaults to "pages/{slug}/index.html".
+# PUBLISH_PATH_PATTERN=pages/{slug}/index.html
+
+# Optional — only needed if you want the AI assist panel via /ai/chat.
+# Set in the Cloudflare Pages dashboard for production, not here.
+# ANTHROPIC_API_KEY=sk-ant-xxx
+# ANTHROPIC_MODEL=claude-sonnet-4-6

@@ -1,0 +1,31 @@
+/* Studio design tokens. The studio chrome and exported pages both use these
+   variables, so changing a value here cascades to the editor and the saved
+   HTML alike. Pick your own --accent and surface palette to brand a fork. */
+:root{
+  --bg:#08080b;
+  --surface:#111116;
+  --surface2:#18181f;
+  --surface3:#1f1f28;
+  --border:#252532;
+  --border-light:#2e2e3e;
+  --text:#e2e2e8;
+  --text-muted:#8888a0;
+  --text-dim:#5c5c72;
+
+  /* Primary accent. Used for chrome highlights, focus rings, brand chip. */
+  --accent:#c4b5fd;
+  --accent-dim:#8b7dcf;
+
+  /* Utility palette — used by status indicators, charts, and any block that
+     wants a non-accent highlight. Reuse rather than introducing one-off
+     hexes. Drop the ones you don't need at fork time. */
+  --blue:#60a5fa;
+  --green:#6ee7b7;
+  --orange:#fbbf24;
+  --teal:#5eead4;
+  --red:#f87171;
+  --pink:#f0abfc;
+  --gold:#fbbf24;
+  --mint:#7ff5c8;
+  --purple:#b794f6;
+}

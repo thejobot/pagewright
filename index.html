@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>tweak</title>
+<meta name="description" content="Vibe coded and want some manual control? Visual editor that publishes pages to a configured GitHub repo.">
+<meta name="studio-site-origin" content="">
+<meta name="studio-github-repo" content="">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='48' font-size='48'%3E🎛️%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/blocks.css">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans','Noto Sans JP',sans-serif;overscroll-behavior:none}
+  #studio-chrome{display:flex;flex-direction:column;height:100%}
+  #studio-topbar{
+    flex-shrink:0;display:flex;align-items:center;gap:10px;flex-wrap:nowrap;
+    padding:8px 14px;border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 95%,transparent),color-mix(in srgb,var(--surface) 80%,transparent));
+    backdrop-filter:blur(8px);
+    overflow-x:auto;overflow-y:visible;
+    scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+  }
+  #studio-topbar::-webkit-scrollbar{height:6px}
+  #studio-topbar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  #studio-topbar::-webkit-scrollbar-track{background:transparent}
+  #studio-topbar > *{flex-shrink:0}
+  #studio-topbar .brand{
+    font-family:'VT323','Space Mono',monospace;font-size:1.15rem;letter-spacing:.08em;
+    color:var(--accent);text-transform:uppercase;white-space:nowrap;
+  }
+  #studio-topbar .brand .dot{color:var(--accent);margin:0 4px}
+  #mode-label{
+    font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text-muted);
+    background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+    padding:4px 9px;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  #mode-label.editing{color:var(--accent);border-color:var(--accent-dim)}
+  #song-slug{
+    font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text);
+    background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+    padding:4px 8px;outline:none;min-width:180px;
+  }
+  #song-slug:focus{border-color:var(--accent-dim)}
+  #studio-topbar .spacer{flex:1}
+  #studio-topbar button{
+    height:32px;padding:0 12px;border-radius:8px;cursor:pointer;
+    background:var(--surface);border:1px solid var(--border);color:var(--text-dim);
+    font-family:'VT323','Space Mono',monospace;font-size:.85rem;letter-spacing:.06em;
+    text-transform:uppercase;transition:all .13s;white-space:nowrap;
+  }
+  #studio-topbar button:hover{color:var(--accent);border-color:var(--accent-dim);background:var(--surface2)}
+  #studio-topbar button:disabled{opacity:.4;cursor:default}
+  #studio-topbar #btn-js.js-off{color:var(--text-dim);border-color:var(--border)}
+  #studio-topbar #btn-js{color:var(--accent);border-color:var(--accent-dim);background:rgba(196,181,253,.1)}
+  #studio-topbar .topbar-sep{
+    width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0;
+  }
+  #studio-topbar #btn-view-top,
+  #studio-topbar #btn-view-fit,
+  #studio-topbar #btn-view-100,
+  #studio-topbar #btn-undo,
+  #studio-topbar #btn-redo{
+    min-width:36px;padding:0 9px;font-family:'JetBrains Mono',monospace;font-size:.82rem;
+  }
+  #studio-topbar #btn-undo,
+  #studio-topbar #btn-redo{font-size:15px;line-height:1}
+
+  /* Canvas breadcrumbs — DOM path to current selection */
+  .canvas-breadcrumbs{
+    position:absolute;left:0;right:0;bottom:0;height:34px;
+    display:flex;align-items:center;gap:2px;padding:0 12px;
+    background:linear-gradient(0deg,var(--surface) 0%,color-mix(in srgb,var(--surface) 60%,transparent) 100%);
+    border-top:1px solid var(--border);
+    overflow-x:auto;scrollbar-width:none;z-index:4;
+    font-family:'JetBrains Mono',monospace;font-size:.78rem;
+  }
+  .canvas-breadcrumbs::-webkit-scrollbar{display:none}
+  .canvas-breadcrumbs .crumb{
+    padding:3px 9px;border-radius:6px;cursor:pointer;color:var(--text-dim);
+    border:1px solid transparent;white-space:nowrap;transition:all .12s;
+  }
+  .canvas-breadcrumbs .crumb:hover{color:var(--accent);border-color:var(--accent-dim);background:var(--surface2)}
+  .canvas-breadcrumbs .crumb.current{color:var(--accent);background:rgba(196,181,253,.12)}
+  .canvas-breadcrumbs .sep{color:var(--text-dim);padding:0 2px;user-select:none}
+  .canvas-breadcrumbs .clear{
+    margin-left:auto;padding:3px 9px;border-radius:6px;background:transparent;
+    border:1px solid var(--border);color:var(--text-dim);cursor:pointer;
+    font-family:inherit;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;
+  }
+  .canvas-breadcrumbs .clear:hover{color:var(--red);border-color:var(--red)}
+  #studio-topbar button.primary{
+    background:var(--accent);color:#0a0a0c;border-color:var(--accent);
+    box-shadow:0 4px 14px rgba(196,181,253,.28);
+  }
+  #studio-topbar button.primary:hover{background:#dcc8ff;color:#0a0a0c}
+  #studio-body{flex:1;display:flex;min-height:0}
+  .canvas-wrap{flex:1;min-width:0;position:relative;display:flex}
+  #gjs{flex:1;min-width:0}
+  #side-panel{
+    width:340px;flex-shrink:0;border-left:1px solid var(--border);
+    background:var(--surface);display:flex;flex-direction:column;min-height:0;
+  }
+  .panel-tabs{
+    display:flex;flex-shrink:0;border-bottom:1px solid var(--border);
+    background:var(--surface);
+  }
+  .panel-tab{
+    flex:1;padding:10px 8px;background:transparent;border:none;cursor:pointer;
+    font-family:'VT323','Space Mono',monospace;font-size:.85rem;color:var(--text-dim);
+    letter-spacing:.08em;text-transform:uppercase;
+    border-bottom:2px solid transparent;transition:all .14s;
+  }
+  .panel-tab:hover{color:var(--text-muted)}
+  .panel-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .panel-body{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  .panel-body[hidden]{display:none}
+  .panel-body > header{
+    padding:10px 12px;border-bottom:1px solid var(--border);
+    font-family:'VT323','Space Mono',monospace;font-size:.82rem;color:var(--accent-dim);
+    text-transform:uppercase;letter-spacing:.08em;
+  }
+
+  /* Songs panel */
+  #songs-list{flex:1;overflow-y:auto;padding:10px}
+  #songs-list .empty{color:var(--text-dim);font-style:italic;padding:14px 8px;font-size:.86rem;line-height:1.5}
+  .song-card{
+    display:flex;gap:10px;padding:10px;margin-bottom:8px;border-radius:10px;
+    background:var(--surface2);border:1px solid var(--border);cursor:grab;
+    position:relative;transition:border-color .14s, transform .14s;
+  }
+  .song-card:hover{border-color:var(--border-light)}
+  .song-card.dragging{opacity:.45;cursor:grabbing}
+  .song-card.drop-target{border-color:var(--accent);background:rgba(196,181,253,.08)}
+  .song-card.drop-before::before,
+  .song-card.drop-after::after{
+    content:'';position:absolute;left:6px;right:6px;height:2px;background:var(--accent);
+    border-radius:1px;
+  }
+  .song-card.drop-before::before{top:-5px}
+  .song-card.drop-after::after{bottom:-5px}
+  .song-art{
+    flex-shrink:0;width:52px;height:52px;border-radius:6px;overflow:hidden;
+    background:#0f0a1a;border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .song-art img,.song-art svg{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+  .song-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px}
+  .song-title{
+    font-family:'DM Sans',sans-serif;font-weight:600;font-size:.92rem;color:var(--text);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .song-artist{
+    font-family:'VT323','Space Mono',monospace;font-size:.8rem;color:var(--text-muted);
+    letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .song-meta{
+    font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-dim);
+    margin-top:2px;
+  }
+  .song-actions{
+    position:absolute;top:6px;right:6px;display:flex;gap:4px;opacity:0;
+    transition:opacity .12s;
+  }
+  .song-card:hover .song-actions{opacity:1}
+  .song-actions button{
+    width:22px;height:22px;border-radius:6px;background:var(--surface);
+    border:1px solid var(--border);color:var(--text-dim);cursor:pointer;font-size:12px;
+    padding:0;display:flex;align-items:center;justify-content:center;
+  }
+  .song-actions button:hover{color:var(--red);border-color:var(--red)}
+  #songs-toolbar{
+    display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--border);
+    flex-shrink:0;
+  }
+  #songs-toolbar button{
+    flex:1;height:30px;border-radius:7px;cursor:pointer;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);
+    font-family:'VT323','Space Mono',monospace;font-size:.8rem;
+    letter-spacing:.06em;text-transform:uppercase;
+  }
+  #songs-toolbar button:hover{color:var(--accent);border-color:var(--accent-dim)}
+  #songs-status{
+    padding:6px 12px 10px;font-family:'JetBrains Mono',monospace;font-size:.72rem;
+    color:var(--text-dim);
+  }
+  #songs-status.dirty{color:var(--gold)}
+
+  /* Layers panel — component tree view */
+  #layers-tree{flex:1;overflow:auto;padding:4px 0 12px;font-family:'JetBrains Mono',monospace;font-size:.78rem}
+  #layers-tree .empty{color:var(--text-dim);font-style:italic;padding:14px 12px;font-size:.84rem;line-height:1.5}
+  .layer-row{
+    display:flex;align-items:center;gap:4px;padding:3px 8px 3px 4px;cursor:pointer;
+    color:var(--text-muted);border-left:2px solid transparent;user-select:none;
+    white-space:nowrap;overflow:hidden;
+  }
+  .layer-row:hover{background:var(--surface2);color:var(--text)}
+  .layer-row.selected{color:var(--accent);background:rgba(196,181,253,.1);border-left-color:var(--accent)}
+  .layer-row .caret{
+    width:14px;flex-shrink:0;text-align:center;color:var(--text-dim);
+    font-family:monospace;font-size:.7rem;
+  }
+  .layer-row .caret.placeholder{visibility:hidden}
+  .layer-row .tag{color:var(--text-dim)}
+  .layer-row.selected .tag{color:var(--accent-dim)}
+  .layer-row .name{overflow:hidden;text-overflow:ellipsis}
+  .layer-row.collapsed + .layer-children{display:none}
+  .layer-children{display:block}
+
+  /* Right-click context menu — floats over the whole app */
+  #ctx-menu{
+    position:fixed;z-index:2000;min-width:180px;padding:6px;
+    background:var(--surface);border:1px solid var(--border-light);border-radius:10px;
+    box-shadow:0 14px 40px rgba(0,0,0,.55),0 0 0 1px rgba(196,181,253,.06);
+    font-family:'DM Sans',sans-serif;font-size:.88rem;
+  }
+  #ctx-menu[hidden]{display:none}
+  #ctx-menu button{
+    display:flex;align-items:center;gap:10px;width:100%;padding:7px 10px;
+    background:transparent;border:none;color:var(--text);text-align:left;cursor:pointer;
+    border-radius:7px;font:inherit;
+  }
+  #ctx-menu button:hover{background:var(--surface2)}
+  #ctx-menu button:disabled{opacity:.4;cursor:default}
+  #ctx-menu button:disabled:hover{background:transparent}
+  #ctx-menu .ctx-shortcut{
+    margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.74rem;
+    color:var(--text-dim);letter-spacing:.02em;
+  }
+  #ctx-menu .ctx-danger{color:var(--red)}
+  #ctx-menu .ctx-danger:hover{background:rgba(248,113,113,.08)}
+  #ctx-menu .ctx-sep{height:1px;background:var(--border);margin:4px 0}
+
+  /* Actions panel */
+  .actions-summary{
+    padding:8px 12px;border-bottom:1px solid var(--border);
+    font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--text-dim);
+  }
+  .actions-summary b{color:var(--accent)}
+  #actions-list{flex:1;overflow-y:auto;padding:10px}
+  #actions-list .empty{color:var(--text-dim);font-style:italic;padding:14px 8px;font-size:.86rem;line-height:1.5}
+  .action-group{margin-bottom:14px}
+  .action-group-head{
+    padding:6px 4px 6px 8px;font-family:'VT323','Space Mono',monospace;font-size:.8rem;
+    color:var(--accent-dim);letter-spacing:.1em;text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;
+  }
+  .action-group-count{
+    font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text-dim);
+    background:var(--surface3);padding:1px 6px;border-radius:10px;
+  }
+  .action-row{
+    display:flex;align-items:flex-start;gap:10px;padding:9px 10px;
+    border-radius:9px;background:var(--surface2);border:1px solid var(--border);
+    margin-bottom:6px;cursor:default;
+  }
+  .action-row.disabled{opacity:.55}
+  .action-row.disabled .action-title{text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:1.5px}
+  .action-row:hover{border-color:var(--border-light)}
+  .action-body{flex:1;min-width:0}
+  .action-title{
+    font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text);
+    word-break:break-word;line-height:1.35;
+  }
+  .action-desc{
+    font-family:'DM Sans',sans-serif;font-size:.76rem;color:var(--text-muted);
+    margin-top:3px;line-height:1.4;
+  }
+  .action-meta{
+    font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text-dim);
+    margin-top:3px;
+  }
+  /* Toggle switch */
+  .action-toggle{
+    flex-shrink:0;width:34px;height:20px;border-radius:10px;
+    background:var(--surface3);border:1px solid var(--border);
+    position:relative;cursor:pointer;transition:all .15s;padding:0;
+  }
+  .action-toggle::after{
+    content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;
+    border-radius:50%;background:var(--text-dim);transition:all .15s;
+  }
+  .action-toggle.on{background:rgba(110,231,183,.12);border-color:var(--green)}
+  .action-toggle.on::after{left:16px;background:var(--green);box-shadow:0 0 4px var(--green)}
+  .action-toggle.off{background:rgba(248,113,113,.1);border-color:var(--red)}
+  .action-toggle.off::after{background:var(--red)}
+  #actions-status{
+    padding:6px 12px 10px;font-family:'JetBrains Mono',monospace;font-size:.72rem;
+    color:var(--text-dim);flex-shrink:0;
+  }
+  #actions-status.dirty{color:var(--gold)}
+  .action-row.drop-target{border-color:var(--mint);background:rgba(127,245,200,.06)}
+  .action-hint{color:var(--text-dim);font-style:italic}
+  .action-sound{
+    display:flex;align-items:center;gap:6px;margin-top:6px;
+    padding:4px 6px;border-radius:6px;background:var(--surface);
+    border:1px solid var(--border);
+  }
+  .action-sound .sound-play,
+  .action-sound .sound-remove{
+    width:22px;height:22px;border-radius:5px;padding:0;cursor:pointer;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);
+    font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center;
+  }
+  .action-sound .sound-play:hover{color:var(--mint);border-color:var(--mint)}
+  .action-sound .sound-remove:hover{color:var(--red);border-color:var(--red)}
+  .action-sound .sound-path{
+    flex:1;min-width:0;font-family:'JetBrains Mono',monospace;font-size:.72rem;
+    color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+
+  /* Song-edit mini dialog (in-panel expansion) */
+  .song-editor{
+    position:relative;margin-bottom:10px;padding:12px;border-radius:10px;
+    background:var(--surface3);border:1px solid var(--accent-dim);
+  }
+  .song-editor label{
+    display:block;font-family:'VT323','Space Mono',monospace;font-size:.74rem;
+    color:var(--accent-dim);text-transform:uppercase;letter-spacing:.08em;margin:8px 0 3px;
+  }
+  .song-editor label:first-of-type{margin-top:0}
+  .song-editor input[type=text],.song-editor input[type=color]{
+    width:100%;height:28px;padding:0 8px;border-radius:6px;
+    background:var(--surface);border:1px solid var(--border);color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:.82rem;outline:none;
+  }
+  .song-editor input[type=color]{padding:2px;height:30px;cursor:pointer}
+  .song-editor input:focus{border-color:var(--accent-dim)}
+  .song-editor .row-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .song-editor-close{
+    position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:6px;
+    background:transparent;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;
+    font-size:13px;padding:0;
+  }
+
+  /* Find panel */
+  #side-panel .find-box{padding:10px}
+  #side-panel .find-box input{
+    width:100%;height:32px;padding:0 10px;border-radius:8px;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:.82rem;outline:none;
+  }
+  #side-panel .find-box input:focus{border-color:var(--accent-dim)}
+  #find-results{flex:1;overflow-y:auto;padding:8px 10px 14px;font-size:.8rem}
+  #find-results .result{
+    padding:8px 10px;border-radius:8px;margin-bottom:6px;cursor:pointer;
+    background:var(--surface2);border:1px solid var(--border);
+    font-family:'JetBrains Mono',monospace;
+  }
+  #find-results .result:hover{border-color:var(--accent-dim)}
+  #find-results .path{color:var(--text)}
+  #find-results .snippet{color:var(--text-dim);margin-top:4px}
+  #find-results .empty{color:var(--text-dim);font-style:italic;padding:12px 4px}
+
+  /* GrapesJS canvas overrides */
+  .gjs-editor{background:var(--bg) !important}
+  .gjs-cv-canvas{background:var(--bg) !important;top:0 !important;height:100% !important;width:100% !important}
+  .gjs-pn-panels{background:var(--surface) !important;border-color:var(--border) !important}
+  .gjs-block{background:var(--surface2) !important;color:var(--text-muted) !important;border-color:var(--border) !important}
+  .gjs-block:hover{color:var(--accent) !important;border-color:var(--accent-dim) !important}
+
+  /* Dialogs — shared */
+  dialog{
+    border:none;background:transparent;padding:0;max-width:none;max-height:none;
+    width:100%;height:100%;
+  }
+  dialog::backdrop{background:rgba(8,8,11,.82);backdrop-filter:blur(4px)}
+  .open-card{
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:min(640px,92vw);max-height:min(80vh,720px);
+    display:flex;flex-direction:column;
+    background:var(--surface);border:1px solid var(--border-light);border-radius:14px;
+    box-shadow:0 18px 60px rgba(0,0,0,.55),0 0 0 1px rgba(196,181,253,.08);
+    overflow:hidden;
+  }
+  .open-head{
+    display:flex;align-items:center;gap:10px;padding:12px 14px;
+    border-bottom:1px solid var(--border);
+  }
+  .open-title{
+    font-family:'VT323','Space Mono',monospace;font-size:1rem;color:var(--accent);
+    letter-spacing:.1em;text-transform:uppercase;
+  }
+  .open-close{
+    margin-left:auto;height:28px;width:28px;border-radius:8px;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);
+    cursor:pointer;font-size:16px;
+  }
+  .open-close:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .open-filter-wrap{padding:10px 14px;border-bottom:1px solid var(--border)}
+  .open-filter{
+    width:100%;height:34px;padding:0 10px;border-radius:8px;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:.84rem;outline:none;
+  }
+  .open-filter:focus{border-color:var(--accent-dim)}
+  .open-list{flex:1;overflow-y:auto;padding:4px 0 12px}
+  .open-group-head{
+    padding:10px 16px 4px;font-family:'VT323','Space Mono',monospace;font-size:.78rem;
+    color:var(--accent-dim);letter-spacing:.1em;text-transform:uppercase;
+  }
+  .open-row{
+    display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text-muted);
+    border-left:2px solid transparent;
+  }
+  .open-row:hover{background:var(--surface2);color:var(--text);border-left-color:var(--accent)}
+  .open-row .open-path{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .open-row .open-size{color:var(--text-dim);font-size:.74rem;flex-shrink:0}
+  .empty{padding:20px 16px;color:var(--text-dim);font-style:italic;font-size:.84rem}
+
+  /* Setup / help modal */
+  .setup-card{
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:min(560px,94vw);max-height:min(88vh,760px);
+    display:flex;flex-direction:column;
+    background:var(--surface);border:1px solid var(--border-light);border-radius:14px;
+    box-shadow:0 18px 60px rgba(0,0,0,.55),0 0 0 1px rgba(196,181,253,.08);
+    overflow:hidden;
+  }
+  .setup-head{
+    padding:16px 18px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:10px;
+  }
+  .setup-title{
+    font-family:'VT323','Space Mono',monospace;font-size:1.15rem;color:var(--accent);
+    letter-spacing:.08em;text-transform:uppercase;
+  }
+  .setup-close{
+    margin-left:auto;height:28px;width:28px;border-radius:8px;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);
+    cursor:pointer;font-size:16px;
+  }
+  .setup-close:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .setup-body{
+    overflow-y:auto;padding:16px 20px 18px;color:var(--text-muted);font-size:.92rem;line-height:1.5;
+  }
+  .setup-body p{margin-bottom:10px}
+  .setup-step{
+    display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--border);
+  }
+  .setup-step:first-of-type{border-top:none;padding-top:6px}
+  .setup-num{
+    flex-shrink:0;width:26px;height:26px;border-radius:50%;
+    background:var(--accent);color:#0a0a0c;font-weight:700;
+    display:flex;align-items:center;justify-content:center;font-size:.82rem;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .setup-step-body{flex:1;min-width:0}
+  .setup-step-title{color:var(--text);font-weight:600;margin-bottom:4px;font-size:.98rem}
+  .setup-step-body code{
+    display:inline-block;background:var(--surface2);border:1px solid var(--border);
+    border-radius:6px;padding:1px 7px;font-family:'JetBrains Mono',monospace;
+    font-size:.82rem;color:var(--text);
+  }
+  .setup-btn{
+    display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:8px;
+    background:var(--accent);color:#0a0a0c;border:none;cursor:pointer;
+    font-family:'VT323','Space Mono',monospace;font-size:.88rem;letter-spacing:.06em;
+    text-transform:uppercase;text-decoration:none;
+    box-shadow:0 4px 14px rgba(196,181,253,.28);
+    margin-top:6px;
+  }
+  .setup-btn:hover{background:#dcc8ff}
+  .setup-btn.ghost{
+    background:var(--surface2);color:var(--text-dim);border:1px solid var(--border);
+    box-shadow:none;
+  }
+  .setup-btn.ghost:hover{color:var(--accent);border-color:var(--accent-dim)}
+  .setup-input-row{display:flex;gap:8px;margin-top:8px}
+  .setup-input{
+    flex:1;height:34px;padding:0 10px;border-radius:8px;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:.82rem;outline:none;
+  }
+  .setup-input:focus{border-color:var(--accent-dim)}
+  .setup-note{color:var(--text-dim);font-size:.82rem;margin-top:8px;line-height:1.5}
+  .setup-status{
+    margin-top:10px;padding:10px 12px;border-radius:8px;font-size:.86rem;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);
+  }
+  .setup-status.ok{border-color:#2d5d4a;color:var(--green);background:rgba(110,231,183,.08)}
+  .setup-status.err{border-color:#702838;color:var(--red);background:rgba(248,113,113,.08)}
+
+  /* Toasts */
+  #toast-stack{
+    position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;
+    z-index:1000;pointer-events:none;max-width:min(420px,90vw);
+  }
+  .toast{
+    pointer-events:auto;padding:12px 14px;border-radius:10px;
+    background:var(--surface);border:1px solid var(--border-light);
+    color:var(--text);font-size:.88rem;line-height:1.4;
+    box-shadow:0 10px 28px rgba(0,0,0,.35);
+    animation:toast-in .18s ease-out;
+  }
+  .toast.success{border-left:3px solid var(--green)}
+  .toast.error{border-left:3px solid var(--red)}
+  .toast.info{border-left:3px solid var(--accent)}
+  .toast .t-head{display:flex;gap:8px;align-items:flex-start}
+  .toast .t-title{font-weight:600;color:var(--text);flex:1;min-width:0}
+  .toast .t-close{
+    flex-shrink:0;width:22px;height:22px;border-radius:6px;
+    background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;
+  }
+  .toast .t-close:hover{color:var(--text)}
+  .toast .t-body{color:var(--text-muted);margin-top:4px;font-size:.84rem}
+  .toast .t-body a{color:var(--accent)}
+  .toast.fading{opacity:0;transition:opacity .25s}
+  @keyframes toast-in{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+
+  /* Empty-canvas overlay */
+  #empty-hint{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    text-align:center;pointer-events:none;color:var(--text-dim);
+    max-width:360px;padding:20px;
+  }
+  #empty-hint .hint-title{
+    font-family:'VT323','Space Mono',monospace;font-size:1.3rem;letter-spacing:.08em;
+    color:var(--accent);text-transform:uppercase;margin-bottom:10px;
+  }
+  #empty-hint .hint-body{font-size:.94rem;line-height:1.6;color:var(--text-muted)}
+  #empty-hint kbd{
+    display:inline-block;padding:1px 7px;border-radius:5px;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:.8rem;margin:0 2px;
+  }
+
+  @media(max-width:760px){
+    #side-panel{display:none}
+    #mode-label{max-width:160px}
+    #song-slug{min-width:120px}
+  }
+</style>
+</head>
+<body>
+<div id="studio-chrome">
+  <header id="studio-topbar">
+    <span class="brand">tweak</span>
+    <button id="btn-new">New</button>
+    <button id="btn-open">Open</button>
+    <button id="btn-help" title="Setup & help">?</button>
+    <button id="btn-js" title="Toggle page JS in preview">⚡ on</button>
+    <span class="topbar-sep" aria-hidden="true"></span>
+    <button id="btn-undo" title="Undo (⌘Z)" disabled>⟲</button>
+    <button id="btn-redo" title="Redo (⇧⌘Z)" disabled>⟳</button>
+    <span class="topbar-sep" aria-hidden="true"></span>
+    <button id="btn-view-top" title="Back to page top + deselect (Esc / Home)">↖ Top</button>
+    <button id="btn-view-fit" title="Fit page in viewport (⌘1)">⤢ Fit</button>
+    <button id="btn-view-100" title="Actual size — 100% (⌘0)">100%</button>
+    <span id="mode-label">new page</span>
+    <input id="song-slug" placeholder="slug-goes-here" value="new-song">
+    <span class="spacer"></span>
+    <button id="btn-export">Export HTML</button>
+    <button id="btn-save" class="primary" style="display:none">Save</button>
+    <button id="btn-publish" class="primary">Publish</button>
+  </header>
+  <div id="studio-body">
+    <div class="canvas-wrap">
+      <div id="gjs"></div>
+      <nav id="canvas-breadcrumbs" class="canvas-breadcrumbs" aria-label="Selection path" hidden></nav>
+      <div id="empty-hint" hidden>
+        <div class="hint-title">Drag · Open · Publish</div>
+        <div class="hint-body">
+          Drag a block from the left panel onto the canvas,
+          or click <kbd>Open</kbd> to load an existing page from the configured repo.
+          First time here? Click <kbd>?</kbd> to set up.
+        </div>
+      </div>
+    </div>
+    <aside id="side-panel">
+      <div class="panel-tabs">
+        <button class="panel-tab" data-tab="layers">Layers</button>
+        <button class="panel-tab" data-tab="songs" hidden data-feature="songs">Songs</button>
+        <button class="panel-tab" data-tab="actions">Actions</button>
+        <button class="panel-tab active" data-tab="find">Find</button>
+      </div>
+
+      <section class="panel-body" data-tab="layers" hidden>
+        <header>Layers</header>
+        <div id="layers-tree"><div class="empty">Open a page to see the layer tree. Click any row to select; the canvas follows.</div></div>
+      </section>
+
+      <section class="panel-body" data-tab="songs" hidden>
+        <header>Songs library</header>
+        <div id="songs-list">
+          <div class="empty">Open a page that contains a <code>&lt;script type="application/json" id="songs-data"&gt;</code> block to edit songs here.<br><br>Drag an image file onto a card to replace its art.</div>
+        </div>
+        <div id="songs-status" hidden></div>
+        <div id="songs-toolbar" hidden>
+          <button id="btn-song-add">+ Add song</button>
+        </div>
+      </section>
+
+      <section class="panel-body" data-tab="actions" hidden>
+        <header>Actions on this page</header>
+        <div id="actions-summary" class="actions-summary" hidden></div>
+        <div id="actions-list">
+          <div class="empty">Open a page to see detected animations and event handlers. Toggle any to disable it both in the preview and on the saved page.</div>
+        </div>
+        <div id="actions-status" hidden></div>
+      </section>
+
+      <section class="panel-body" data-tab="find">
+        <header>Find in repo</header>
+        <div class="find-box">
+          <input id="find-input" placeholder="filename or words…">
+        </div>
+        <div id="find-results">
+          <div class="empty">Search the configured repo for files or snippets.</div>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<dialog id="open-modal">
+  <div class="open-card">
+    <div class="open-head">
+      <span class="open-title">Open from repo</span>
+      <button class="open-close" aria-label="close">×</button>
+    </div>
+    <div class="open-filter-wrap">
+      <input class="open-filter" placeholder="filter by path… (e.g. songs/, experiments, index)">
+    </div>
+    <div class="open-list"></div>
+  </div>
+</dialog>
+
+<dialog id="setup-modal">
+  <div class="setup-card">
+    <div class="setup-head">
+      <span class="setup-title">Set up studio</span>
+      <button class="setup-close" aria-label="close">×</button>
+    </div>
+    <div class="setup-body">
+      <p>Studio needs a GitHub token to read and write <code class="repo-name">your repo</code>.
+      It's stored <strong>only in your browser</strong> and sent with each request. Nothing touches a file on disk.</p>
+
+      <div class="setup-step">
+        <div class="setup-num">1</div>
+        <div class="setup-step-body">
+          <div class="setup-step-title">Create a fine-grained PAT</div>
+          <div>Open GitHub with the right scope pre-suggested:</div>
+          <a id="setup-gh-link"
+             class="setup-btn"
+             target="_blank" rel="noopener"
+             href="https://github.com/settings/personal-access-tokens/new">
+            Open GitHub → New PAT ↗
+          </a>
+          <div class="setup-note">
+            <strong>Repository access:</strong> Only select repositories → <code class="repo-name">your repo</code><br>
+            <strong>Permissions:</strong> Contents <em>Read &amp; write</em> · Pull requests <em>Read &amp; write</em><br>
+            Expiration: 30–90 days is fine.
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-num">2</div>
+        <div class="setup-step-body">
+          <div class="setup-step-title">Paste the token here</div>
+          <div class="setup-input-row">
+            <input id="setup-token-input" class="setup-input" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+            <button id="setup-save-btn" class="setup-btn">Save</button>
+          </div>
+          <div class="setup-note">
+            Starts with <code>github_pat_</code> (fine-grained) or <code>ghp_</code> (classic).
+            Both work. Use <button id="setup-clear-btn" class="setup-btn ghost" style="margin-top:8px">Clear saved token</button> if you need to rotate.
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-step">
+        <div class="setup-num">3</div>
+        <div class="setup-step-body">
+          <div class="setup-step-title">Test it</div>
+          <div>Make sure the token reaches GitHub:</div>
+          <button id="setup-test-btn" class="setup-btn ghost">Test connection</button>
+          <div id="setup-status" class="setup-status" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div id="toast-stack"></div>
+
+<div id="ctx-menu" hidden role="menu" aria-label="Component actions"></div>
+
+<script src="https://unpkg.com/grapesjs/dist/grapes.min.js"></script>
+<script src="https://unpkg.com/grapesjs-preset-webpage/dist/index.js"></script>
+<script src="https://unpkg.com/grapesjs-plugin-export/dist/grapesjs-plugin-export.min.js"></script>
+<script type="module" src="blocks/index.js"></script>
+<script type="module" src="studio.js"></script>
+</body>
+</html>
